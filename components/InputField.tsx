@@ -16,6 +16,7 @@ const InputField = ({
   return (
     <KeyboardAvoidingView>
       <TouchableWithoutFeedback>
+        d
         <View className="my-2 w-full">
           <Text className={`text-lg font-JakartaSemiBold mb-3 ${labelStyle}`}>
             {label}
