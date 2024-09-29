@@ -1,10 +1,10 @@
-import { View, Image, ScrollView, Text } from "react-native";
+import { View, Image, ScrollView, Text, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons, images } from "@/constants";
 import InputField from "@/components/InputField";
 import { useState } from "react";
 import CustomButton from "@/components/CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import OAuth from "@/components/OAuth";
 import { useSignUp } from "@clerk/clerk-expo";
 import Modal from "react-native-modal";
@@ -37,12 +37,10 @@ const SignUp = () => {
 
       setVerification({
         ...verification,
-        state: "Pending",
+        state: "pending",
       });
     } catch (err: any) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2));
+      Alert.alert("Error from clerk");
     }
   };
 
@@ -71,7 +69,7 @@ const SignUp = () => {
       setVerification({
         ...verification,
         state: "failed",
-        error: err.errors[0].long_message,
+        error: err.errors[0].longMessage,
       });
     }
   };
@@ -144,9 +142,71 @@ const SignUp = () => {
         </View>
 
         {/*Verification modal*/}
-        <Modal isVisible={true}>
-          <View style={{ flex: 1 }}>
-            <Text>I am the modal content!</Text>
+        <Modal
+          isVisible={verification.state === "pending"}
+          onModalHide={() =>
+            setVerification({ ...verification, state: "success" })
+          }
+        >
+          <View className={"bg-white px-7 py-9 rounded-2xl min-h-[300px]"}>
+            <Text className={"text-2xl font-JakartaBold text-center mb-2"}>
+              Verification
+            </Text>
+
+            <Text className={"l font-JakartaBold text-center mb-5"}>
+              Verification Code sent to {form.email}
+            </Text>
+
+            <InputField
+              label={"Code"}
+              icon={icons.lock}
+              placeholder={"Enter 6 Digit Code Here"}
+              value={verification.code}
+              keyboardType={"numeric"}
+              onChangeText={(code) =>
+                setVerification({ ...verification, code })
+              }
+            />
+            {verification.error && (
+              <Text className={"text-red-500 text-sm mt-1"}>
+                {verification.error}
+              </Text>
+            )}
+
+            <CustomButton
+              title={"Verify Email"}
+              onPress={onPressVerify}
+              className={"mt-5 bg-success-500"}
+            />
+          </View>
+        </Modal>
+        <Modal isVisible={verification.state === "success"}>
+          <View className={"bg-white px-7 py-9 rounded-2xl min-h-[300px]"}>
+            <Image
+              source={images.check}
+              className={"w-[100px] h-[100px] mx-auto my-5"}
+            />
+
+            <Text className={"text-3xl font-JakartaBold text-center"}>
+              Verified
+            </Text>
+
+            <Text
+              className={
+                "text-base text-gray-400 font-JakartaSemiBold text-center mt-2"
+              }
+            >
+              You have successfully verified your account
+            </Text>
+
+            <CustomButton
+              title={"Browse Home"}
+              onPress={() => {
+                setVerification({ ...verification, state: "default" });
+                router.push("/(root)/(tabs)/home");
+              }}
+              className={"mt-8"}
+            />
           </View>
         </Modal>
       </View>
