@@ -3,9 +3,9 @@ import { neon } from "@neondatabase/serverless";
 export async function POST(request: Request) {
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
-    const { name, email, clerk_id } = await request.json();
+    const { name, email, clerkId } = await request.json();
 
-    if (!name || !email || !clerk_id) {
+    if (!name || !email || !clerkId) {
       return Response.json(
         { error: "Missing required parameters." },
         { status: 400 },
@@ -13,16 +13,22 @@ export async function POST(request: Request) {
     }
 
     const response = await sql`
-   INSERT INTO users (name, email, clerk_id )
-    VALUES (
-       ${name},
-       ${email},
-       ${clerk_id}
-    )
-`;
-    return new Response(JSON.stringify({ data: response }), { status: 200 });
+      INSERT INTO users (
+        name, 
+        email, 
+        clerk_id
+      ) 
+      VALUES (
+        ${name}, 
+        ${email},
+        ${clerkId}
+     );`;
+
+    return new Response(JSON.stringify({ data: response }), {
+      status: 201,
+    });
   } catch (error) {
-    console.log(error);
-    return Response.json({ error }, { status: 500 });
+    console.error("Error creating user:", error);
+    return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

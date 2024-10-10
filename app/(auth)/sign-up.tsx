@@ -46,9 +46,7 @@ const SignUp = () => {
   };
 
   const onPressVerify = async () => {
-    if (!isLoaded) {
-      return;
-    }
+    if (!isLoaded) return;
 
     try {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
@@ -56,13 +54,13 @@ const SignUp = () => {
       });
 
       if (completeSignUp.status === "complete") {
-        console.log(completeSignUp.status, "Running");
-        await fetchAPI("/api/user", {
+        // console.log(completeSignUp.status, "Running");
+        await fetchAPI("/(api)/user", {
           method: "POST",
           body: JSON.stringify({
             name: form.name,
             email: form.email,
-            clerk_id: completeSignUp.createdUserId,
+            clerkId: completeSignUp.createdUserId,
           }),
         });
 
